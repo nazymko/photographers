@@ -1,9 +1,8 @@
 package com.example.photographers.services;
 
 import android.content.Context;
-import com.example.photographers.Cache;
 import com.example.photographers.Image;
-import com.example.photographers.Log;
+import com.example.photographers.util.Log;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -16,6 +15,7 @@ import java.io.IOException;
  * User: patronus
  */
 public class CoreLoader {
+    private static String basePath = "http://photographers.com.ua";
     Context context;
 
     public CoreLoader(Context context) {
@@ -25,18 +25,31 @@ public class CoreLoader {
     public CoreLoader() {
     }
 
-    public void Load(String url, Cache receiver) {
+    public static String getBigImage(String page) throws IOException {
+        Document document = Jsoup.connect(page).get();
+
+        String src = document.select("img#theImage").attr("src");
+
+        return basePath + src;
+    }
+
+    public void load(String url, Consumer consumer) {
 
         //get connection for reading
         Log.d("URL:" + url);
         Log.d("before connect");
         Connection connect = Jsoup.connect(url);
+        connect.timeout(10000);
 
         try {
             Log.d("after connect");
             Document document = connect.get();
             Log.d("after get");
-            Elements select = document.select("div.pictures-search table tr td div.photo");
+
+            Elements select = document.select("div.photo");
+//            Elements select = document.select("div.pictures-search table tr td div.photo");
+
+            Log.w("Selection: " + select.size());
             for (Element pictureWithInfo : select) {
                 //Get information about image, author and where we can find other
                 String smallImage = pictureWithInfo.select("a img").attr("src");
@@ -51,6 +64,8 @@ public class CoreLoader {
 
                 String imageRate = pictureWithInfo.select("div.stat div.fl span.score.plus").text();
 
+                String bigImage = getBigImage(bigImagePageUrl);
+
                 Image img = new Image();
 
                 img.setSmallImageUrl(smallImage);
@@ -59,14 +74,12 @@ public class CoreLoader {
                 img.setImageName(imageTitle);
                 img.setRate(imageRate);
                 img.setNormalImagePage(bigImagePageUrl);
+                img.setBigImage(bigImage);
 
                 //add all this information to the cache manager - he must do something smart with this
-                receiver.add(img);
+                consumer.send(img);
 
             }
-
-
-            Log.d("Cache size:" + receiver.getCache().size());
 
         } catch (IOException e) {
             e.printStackTrace();

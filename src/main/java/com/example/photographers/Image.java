@@ -1,15 +1,18 @@
 package com.example.photographers;
 
+import java.io.Serializable;
+
 /**
  * User: patronus
  */
-public class Image {
+public class Image implements Serializable {
     String smallImageUrl;
     String normalImagePage;
     String imageName = "*.*";
     String rate = "0";
     String author = "*.*";
     String authorPage;
+    private String bigImage;
 
     public String getAuthorPage() {
         return authorPage;
@@ -69,5 +72,13 @@ public class Image {
                 ", author='" + author + '\'' +
                 ", authorPage='" + authorPage + '\'' +
                 '}';
+    }
+
+    public void setBigImage(String bigImage) {
+        this.bigImage = bigImage;
+    }
+
+    public String getBigImage() {
+        return bigImage;
     }
 }

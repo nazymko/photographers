@@ -7,7 +7,7 @@ import com.example.photographers.services.LazyLoader;
 
 public class EndlessScrollListener implements AbsListView.OnScrollListener {
 
-    private int visibleThreshold = 1;
+    private int visibleThreshold = 10;
     private int currentPage = 0;
     private int previousTotal = 0;
     private boolean loading = true;
@@ -42,6 +42,7 @@ public class EndlessScrollListener implements AbsListView.OnScrollListener {
             context.startService(service);
             loading = true;
         }
+
     }
 
     @Override

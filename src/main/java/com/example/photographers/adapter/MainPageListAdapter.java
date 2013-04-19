@@ -3,6 +3,8 @@ package com.example.photographers.adapter;
 import android.app.Activity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -19,7 +21,8 @@ import java.util.List;
  */
 public class MainPageListAdapter extends BaseAdapter {
 
-    private List<Image> images = new ArrayList<Image>();
+    private static int previousPosition = 0;
+    private ArrayList<Image> images = new ArrayList<Image>();
     private Activity context;
 
     public MainPageListAdapter(Activity context, List<Image> images) {
@@ -28,9 +31,13 @@ public class MainPageListAdapter extends BaseAdapter {
 
     }
 
-    public void setImages(List<Image> images) {
-        this.images.clear();
-        this.images.addAll(images);
+    public ArrayList<Image> getImages() {
+        return images;
+    }
+
+    public void setImages(List<Image> imagesCache) {
+        this.images.addAll(imagesCache);
+        imagesCache.clear();
     }
 
     @Override
@@ -51,25 +58,46 @@ public class MainPageListAdapter extends BaseAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         if (convertView == null) {
-            convertView = context.getLayoutInflater().inflate(R.layout.endles_list_element, null);
+            convertView = context.getLayoutInflater().inflate(R.layout.list_element, null);
         }
         Image item = getItem(position);
-        ((TextView) convertView.findViewById(R.id.author_name)).setText(item.getAuthor());
 
         ImageView img = ((ImageView) convertView.findViewById(R.id.imageView));
 
         TextView rate = (TextView) convertView.findViewById(R.id.img_rate);
 
-        rate.setText(context.getString(R.string.rate_word) + item.getRate());
+        rate.setText(item.getRate());
 
         TextView title = (TextView) convertView.findViewById(R.id.picture_name);
 
-        title.setText(item.getImageName());
+        String imageName = item.getImageName();
+        if (!(imageName.length() == 0)) {
+            title.setText(imageName);
+        } else {
+            title.setText(item.getAuthor());
+        }
 
-        DisplayImageOptions options = new DisplayImageOptions.Builder().showStubImage(R.drawable.noimage).showImageForEmptyUri(R.drawable.simple).cacheOnDisc().build();
+
+        DisplayImageOptions options = new DisplayImageOptions.Builder().showStubImage(R.drawable.noimage).showImageForEmptyUri(R.drawable.simple).cacheInMemory().cacheOnDisc().build();
 
         ImageLoader.getInstance().displayImage(item.getSmallImageUrl(), img, options);
 
+
+        //Test animations
+        Animation
+                animation = AnimationUtils.loadAnimation(context, R.anim.top_to_down);
+
+        if (previousPosition != 0 || position <= 3) {
+            convertView.setAnimation(animation);
+        } else {
+            convertView.setAnimation(null);
+        }
+        previousPosition = position;
+
         return convertView;
+    }
+
+    public void addNew(Image img) {
+        images.add(img);
     }
 }
