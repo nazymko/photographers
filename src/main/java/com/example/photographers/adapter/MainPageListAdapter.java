@@ -3,8 +3,6 @@ package com.example.photographers.adapter;
 import android.app.Activity;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -83,16 +81,16 @@ public class MainPageListAdapter extends BaseAdapter {
         ImageLoader.getInstance().displayImage(item.getSmallImageUrl(), img, options);
 
 
-        //Test animations
-        Animation
-                animation = AnimationUtils.loadAnimation(context, R.anim.top_to_down);
-
-        if (previousPosition != 0 || position <= 3) {
-            convertView.setAnimation(animation);
-        } else {
-            convertView.setAnimation(null);
-        }
-        previousPosition = position;
+//        //Test animations
+//        Animation
+//                animation = AnimationUtils.loadAnimation(context, R.anim.top_to_down);
+//
+//        if (previousPosition != 0 || position <= 3) {
+//            convertView.setAnimation(animation);
+//        } else {
+//            convertView.setAnimation(null);
+//        }
+//        previousPosition = position;
 
         return convertView;
     }
