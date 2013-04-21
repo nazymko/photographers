@@ -2,7 +2,16 @@ package com.example.photographers.services;
 
 import android.app.IntentService;
 import android.content.Intent;
+import com.example.photographers.Image;
+import com.example.photographers.ImageRegister;
 import com.example.photographers.util.Log;
+import org.jsoup.Connection;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+
+import java.io.IOException;
 
 /**
  * User: patronus
@@ -35,17 +44,67 @@ public class LazyLoader extends IntentService {
 
         Log.d("service started, page" + page);
         //prepare url
-        String pageUrl = PHOTOGRAPHERS_SUPPLY + page;
+        String gridViewPage = PHOTOGRAPHERS_SUPPLY + page;
         if (page == 0) {
-            pageUrl = PHOTOGRAPHERS_SUPPLY;
+            gridViewPage = PHOTOGRAPHERS_SUPPLY;
         } else {
-            pageUrl = PHOTOGRAPHERS_SUPPLY + "?page=" + page;
+            gridViewPage = PHOTOGRAPHERS_SUPPLY + "?page=" + page;
         }
 
 
-        CoreLoader loader = new CoreLoader(this);
-        loader.load(pageUrl, new Consumer(this));
+        //get connection for reading
+        Connection connect = Jsoup.connect(gridViewPage);
+        connect.timeout(5000);
 
+        try {
+            Log.d("after connect");
+            Document document = connect.get();
+            Log.d("after get");
+
+            Elements select = document.select("div.photo");
+//            Elements select = document.select("div.pictures-search table tr td div.photo");
+
+            Log.w("Selection: " + select.size());
+            for (Element pictureWithInfo : select) {
+                //Get information about image, author and where we can find other
+                String smallImage = pictureWithInfo.select("a img").attr("src");
+
+                String bigImagePageUrl = pictureWithInfo.select("a").attr("href");
+
+                String imageTitle = pictureWithInfo.select("div.info div.name a").text();
+
+                String authorPage = pictureWithInfo.select("div.info div.about a").attr("href");
+
+                String authorName = pictureWithInfo.select("div.info div.about a").text();
+
+                String imageRate = pictureWithInfo.select("div.stat div.fl span.score.plus").text();
+
+
+                Image img = new Image();
+
+                img.setSmallImageUrl(smallImage);
+                img.setAuthor(authorName);
+                img.setAuthorPage(authorPage);
+                img.setImageName(imageTitle);
+                img.setRate(imageRate);
+                img.setNormalImagePage(bigImagePageUrl);
+
+                ImageRegister.getInstance().getImages().add(img);
+                //add all this information to the cache manager - he must do something smart with this
+
+
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            //TODO:
+        }
+
+        //Start load all big images url
+        Intent imageGetter = new Intent(this, BigImageGetter.class);
+        startService(imageGetter);
+
+        ImageRegister.getInstance().setCurrentPage(page);
 
         Intent message = new Intent();
         //Send message for updating

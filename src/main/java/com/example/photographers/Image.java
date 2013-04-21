@@ -30,7 +30,7 @@ public class Image implements Serializable {
         this.smallImageUrl = smallImageUrl;
     }
 
-    public String getNormalImagePage() {
+    public String getBigImagePage() {
         return normalImagePage;
     }
 

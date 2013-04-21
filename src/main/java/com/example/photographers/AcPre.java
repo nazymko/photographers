@@ -1,5 +1,6 @@
 package com.example.photographers;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -9,6 +10,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import com.actionbarsherlock.app.SherlockActivity;
 import com.example.photographers.adapter.EndlessScrollListener;
 import com.example.photographers.adapter.MainPageListAdapter;
 import com.example.photographers.services.LazyLoader;
@@ -18,8 +20,9 @@ import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 
 import java.util.ArrayList;
 
-public class AcPre extends Activity {
-    public static final String IMAGES = "images";
+public class AcPre extends SherlockActivity {
+    public static final String IMAGES = "img";
+    public static String BASE_PATH = "http://photographers.com.ua";
     private MainPageListAdapter adapter;
     private BroadcastReceiver receiver;
 
@@ -36,7 +39,13 @@ public class AcPre extends Activity {
                 .build();
         ImageLoader.getInstance().init(config);
 
+        //Add action bar
+        ActionBar actionBar = getActionBar();
 
+        actionBar.setIcon(R.drawable.logo);
+
+
+        //Set previously loaded list element
         ListView list = (ListView) findViewById(R.id.endless_list);
         ArrayList<Image> images = new ArrayList<Image>();
         if (savedInstanceState != null) {
@@ -95,8 +104,8 @@ public class AcPre extends Activity {
             }
         };
         registerReceiver(receiver, new IntentFilter() {{
-//            addAction(LazyLoader.PAGE_LOADED);
-            addAction(LazyLoader.NEW_ELEMENT);
+            addAction(LazyLoader.PAGE_LOADED);
+//            addAction(LazyLoader.NEW_ELEMENT);
         }}
         );
     }

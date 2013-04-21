@@ -5,15 +5,16 @@
           android:versionName="1.0">
 
 
-    <uses-sdk android:minSdkVersion="7" android:targetSdkVersion="17"/>
+    <uses-sdk android:minSdkVersion="7" android:targetSdkVersion="10"/>
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 
 
-    <application android:label="@string/app_name" android:icon="@drawable/ic_launcher">
+    <application android:label="@string/app_name" android:icon="@drawable/logo">
 
 
         <activity android:name=".AcPre"
+                  android:theme="@android:style/Theme.Holo.Light"
                   android:label="@string/app_name" android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -23,11 +24,13 @@
 
 
         <activity android:name=".AcBig"
+                  android:theme="@android:style/Theme.Holo.Light"
                   android:screenOrientation="portrait"/>
 
 
         <service android:name=".services.LazyLoader"/>
-
+        <service android:name=".services.FileLoader"/>
+        <service android:name=".services.BigImageGetter"/>
 
     </application>
 </manifest>

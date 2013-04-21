@@ -32,7 +32,7 @@ public class Frame extends Fragment {
 
         View frm = inflater.inflate(R.layout.scalable_image, null);
 
-        //Use line below for large images if you have hardware rendering turned on
+        //Use line below for large logo if you have hardware rendering turned on
         //imageView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
         // Line below is optional, depending on what scaling method you want
 

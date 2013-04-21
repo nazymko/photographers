@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">photographers in ua</string>
+    <string name="app_name">PhotoGrabbers</string>
+    <string name="big_img_menu_save">SAVE</string>
+    <string name="big_img_menu_share">SHARE</string>
 
 </resources>
