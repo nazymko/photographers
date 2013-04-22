@@ -5,16 +5,15 @@
               android:layout_width="fill_parent"
               android:layout_height="fill_parent">
 
-    <ListView
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/endless_list" android:layout_gravity="center"/>
     <com.google.ads.AdView android:id="@+id/adView"
                            android:layout_width="fill_parent"
                            android:layout_height="wrap_content"
                            ads:adUnitId="a1517590408c172"
                            ads:adSize="BANNER"
-                           ads:testDevices="0123456789ABCDEF"
                            ads:loadAdOnCreate="true"/>
+    <ListView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/endless_list" android:layout_gravity="center"/>
 </LinearLayout>
 
