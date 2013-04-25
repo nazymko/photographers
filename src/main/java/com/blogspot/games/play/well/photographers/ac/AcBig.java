@@ -1,4 +1,4 @@
-package com.blogspot.games.play.well.photographers;
+package com.blogspot.games.play.well.photographers.ac;
 
 import android.app.ActionBar;
 import android.content.BroadcastReceiver;
@@ -15,6 +15,8 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.widget.ShareActionProvider;
 import com.blogspot.games.play.well.R;
+import com.blogspot.games.play.well.photographers.Image;
+import com.blogspot.games.play.well.photographers.ImageRegister;
 import com.blogspot.games.play.well.photographers.adapter.BigScreenAdapter;
 import com.blogspot.games.play.well.photographers.services.FileLoader;
 import com.blogspot.games.play.well.photographers.services.LazyLoader;

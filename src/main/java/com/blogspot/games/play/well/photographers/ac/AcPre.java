@@ -1,4 +1,4 @@
-package com.blogspot.games.play.well.photographers;
+package com.blogspot.games.play.well.photographers.ac;
 
 import android.app.ActionBar;
 import android.content.BroadcastReceiver;
@@ -6,13 +6,18 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.view.ContextMenu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.Toast;
 import com.actionbarsherlock.app.SherlockActivity;
 
 
 import com.blogspot.games.play.well.R;
+import com.blogspot.games.play.well.photographers.Image;
+import com.blogspot.games.play.well.photographers.ImageRegister;
 import com.blogspot.games.play.well.photographers.adapter.EndlessScrollListener;
 import com.blogspot.games.play.well.photographers.adapter.MainPageListAdapter;
 import com.blogspot.games.play.well.photographers.services.LazyLoader;
@@ -24,6 +29,8 @@ import java.util.ArrayList;
 
 public class AcPre extends SherlockActivity {
     public static final String IMAGES = "img";
+    public static final int MORE_FROM_AUTHOR = 1;
+    public static final int SHARE_LINK = 2;
     public static String BASE_PATH = "http://photographers.com.ua";
     private MainPageListAdapter adapter;
     private BroadcastReceiver receiver;
@@ -34,7 +41,7 @@ public class AcPre extends SherlockActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.main);
+        setContentView(R.layout.preview_list);
 
         ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(getApplicationContext())
                 .denyCacheImageMultipleSizesInMemory()
@@ -96,6 +103,28 @@ public class AcPre extends SherlockActivity {
         outState.putSerializable(IMAGES, adapter.getImages());
 
         super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        menu.add(MORE_FROM_AUTHOR, v.getId(), 0, "More from this photographer");
+        menu.add(SHARE_LINK, v.getId(), 0, "Share link with");
+        super.onCreateContextMenu(menu, v, menuInfo);    //To change body of overridden methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        int groupId = item.getGroupId();
+
+        switch (groupId) {
+            case MORE_FROM_AUTHOR:
+                break;
+            case SHARE_LINK:
+                Toast.makeText(this, "Not implemented", Toast.LENGTH_LONG).show();
+                break;
+        }
+
+        return super.onContextItemSelected(item);    //To change body of overridden methods use File | Settings | File Templates.
     }
 
     private void registerBroadcastReceiver() {
