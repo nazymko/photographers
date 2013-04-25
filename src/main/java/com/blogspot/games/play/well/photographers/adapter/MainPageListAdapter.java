@@ -8,6 +8,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import com.blogspot.games.play.well.photographers.Image;
 import com.blogspot.games.play.well.R;
+import com.google.ads.AdSize;
+import com.google.ads.AdView;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
@@ -20,6 +22,7 @@ import java.util.List;
  */
 public class MainPageListAdapter extends BaseAdapter {
 
+    public static final int ID_KEY = 3;
     private static int previousPosition = 0;
     private ArrayList<Image> images = new ArrayList<Image>();
     private Activity context;
@@ -27,7 +30,6 @@ public class MainPageListAdapter extends BaseAdapter {
     public MainPageListAdapter(Activity context, List<Image> images) {
         this.context = context;
         this.images.addAll(images);
-
     }
 
     public ArrayList<Image> getImages() {
@@ -81,18 +83,7 @@ public class MainPageListAdapter extends BaseAdapter {
 
         ImageLoader.getInstance().displayImage(item.getSmallImageUrl(), img, options);
 
-
-//        //Test animations
-//        Animation
-//                animation = AnimationUtils.loadAnimation(context, R.anim.top_to_down);
-//
-//        if (previousPosition != 0 || position <= 3) {
-//            convertView.setAnimation(animation);
-//        } else {
-//            convertView.setAnimation(null);
-//        }
-//        previousPosition = position;
-
+        convertView.setTag(ID_KEY, position);
         return convertView;
     }
 
