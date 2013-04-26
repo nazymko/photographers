@@ -23,6 +23,7 @@ import com.blogspot.games.play.well.photographers.services.LazyLoader;
 import com.blogspot.games.play.well.photographers.util.Log;
 
 import java.io.File;
+import java.net.URI;
 
 /**
  * User: Andrew.Nazymko
@@ -74,34 +75,27 @@ public class AcBig extends SherlockFragmentActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        Image image;
+        Intent intent;
         switch (item.getItemId()) {
             case android.R.id.home:
                 // app icon in action bar clicked; go home
                 finish();
                 return true;
-
             case R.id.menu_save:
-                Image image = ImageRegister.getInstance().getImages().get(picturePosition);
-
+                image = ImageRegister.getInstance().getImages().get(picturePosition);
                 //Okay, i load it from the internet
                 Log.d("Load service before start");
-                Intent intent = new Intent(this, FileLoader.class);
+                intent = new Intent(this, FileLoader.class);
                 intent.putExtra(FileLoader.FILE_URL, image.getBigImage());
                 startService(intent);
 
-
                 break;
             case R.id.menu_share:
-                Intent shareIntent = new Intent();
-                shareIntent.setType("*/*");
-//                shareIntent.
-                int currentItem = pager.getCurrentItem();
-                String bigImage = ImageRegister.getInstance().getImages().get(currentItem).getBigImage();
+                //Share image url on the site
 
-                Uri uri = Uri.fromFile(new File(getFilesDir(), bigImage));
-                shareIntent.putExtra(Intent.EXTRA_STREAM, uri.toString());
-
-                setShareIntent(shareIntent);
+                image = ImageRegister.getInstance().getImages().get(picturePosition);
+                onShareCome(image);
 
                 break;
             default:
@@ -110,11 +104,43 @@ public class AcBig extends SherlockFragmentActivity {
         return true;
     }
 
-    // Call to update the share intent
-    private void setShareIntent(Intent shareIntent) {
-        if (mShareActionProvider != null) {
-            mShareActionProvider.setShareIntent(shareIntent);
+    private void onShareCome(Image img) {
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+
+        String file = img.getBigImage();
+        shareIntent.setType("text/plain");
+
+        //Send just image url
+
+        Log.d("Share intend, img = " + file);
+
+
+        shareIntent.putExtra(Intent.EXTRA_TEXT, file);
+        String subject = getString(R.string.app_name) + getInfo(img);
+        shareIntent.putExtra(Intent.EXTRA_SUBJECT, subject);
+
+
+        if (imageLoaded(file)) {
+            Uri ur = Uri.fromFile(new File(FileLoader.SAVE_PATH + file.substring(file.lastIndexOf("/"))));
+            shareIntent.putExtra(Intent.EXTRA_STREAM, ur);
         }
+
+        startActivity(Intent.createChooser(shareIntent, "Share image to.."));
+    }
+
+    private String getInfo(Image img) {
+        if (img.getImageName() != null && img.getImageName().length() > 3) {
+            return " - " + img.getImageName();
+        } else if (img.getAuthor() != null && img.getAuthor().length() > 3) {
+            return " - " + img.getAuthor();
+        }
+
+        return "";
+    }
+
+    private boolean imageLoaded(String file) {
+        String substring = file.substring(file.lastIndexOf("/"));
+        return new File(FileLoader.SAVE_PATH + substring).exists();
     }
 
     private void registerReceiver() {
@@ -124,8 +150,10 @@ public class AcBig extends SherlockFragmentActivity {
                                  String action = intent.getAction();
                                  Log.d("action = [" + action + "]");
                                  if (FileLoader.FILE_LOADED.equals(action)) {
-
+                                     Bundle extras = intent.getExtras();
+                                     //We load some image
                                      Toast.makeText(AcBig.this, "Image saved :)", Toast.LENGTH_LONG).show();
+
                                  } else if (LazyLoader.PAGE_LOADED.equals(action)) {
                                      adapter.notifyDataSetChanged();
                                  }

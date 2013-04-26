@@ -33,7 +33,7 @@ public class BigImageGetter extends IntentService {
 
         String src = document.select("img#theImage").attr("src");
 
-        return AcPre .BASE_PATH + src;
+        return AcPre.BASE_PATH + src;
     }
 
     @Override
@@ -43,6 +43,9 @@ public class BigImageGetter extends IntentService {
 
         List<Image> images = imageRegister.getImages();
         int startFrom = imageRegister.getImageProcessed();
+        if (images == null) {
+            return;//Fuck this bugs!
+        }
         int to = images.size();
 
         for (; startFrom < to; startFrom++) {

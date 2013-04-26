@@ -17,6 +17,9 @@ public class FileLoader extends IntentService {
 
     public static final String FILE_URL = "FILE_URL";
     public static final String FILE_LOADED = "FILE_LOADED";
+    public static final String FILE = "FILE";
+    public static final String SHARE = "SHARE";
+    public static final String SAVE_PATH = "/sdcard/" + "PhotoGraphers/";
 
     /**
      * Creates an IntentService.  Invoked by your subclass's constructor.
@@ -35,13 +38,14 @@ public class FileLoader extends IntentService {
 
     protected void onHandleIntent(Intent intent) {
         String fileUrl = intent.getExtras().getString(FILE_URL);
+        boolean isShare = intent.getBooleanExtra(SHARE, false);
         if (fileUrl == null) {
             return;
         }
 
-        Log.d("URL:" + fileUrl);
+        Log.d("FILE:" + fileUrl);
 
-        File fileDir = new File("/sdcard/" + "PhotoGraphers/");
+        File fileDir = new File(SAVE_PATH);
         if (!fileDir.exists()) {
             fileDir.mkdirs();
             Log.d("Directory created!");
@@ -55,6 +59,7 @@ public class FileLoader extends IntentService {
             String fileName = getName(fileUrl);
 
             // download the file
+            Log.d("Prepare file to save:" + fileDir);
             InputStream input = new BufferedInputStream(url.openStream());
             File img = new File(fileDir + fileName);
 
@@ -73,10 +78,15 @@ public class FileLoader extends IntentService {
 
             output.flush();
             output.close();
+            Log.d("File send to : " + img.toString());
+
 
             Log.d("Sending broadcast");
 
             Intent goodNewsSummoner = new Intent(FILE_LOADED);
+            if (isShare) {
+                goodNewsSummoner.putExtra(FILE, img.toString());
+            }
             sendBroadcast(goodNewsSummoner);
 
         } catch (MalformedURLException e) {

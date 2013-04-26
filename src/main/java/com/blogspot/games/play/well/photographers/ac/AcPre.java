@@ -11,6 +11,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 import com.actionbarsherlock.app.SherlockActivity;
 
@@ -20,6 +21,7 @@ import com.blogspot.games.play.well.photographers.Image;
 import com.blogspot.games.play.well.photographers.ImageRegister;
 import com.blogspot.games.play.well.photographers.adapter.EndlessScrollListener;
 import com.blogspot.games.play.well.photographers.adapter.MainPageListAdapter;
+import com.blogspot.games.play.well.photographers.services.FileLoader;
 import com.blogspot.games.play.well.photographers.services.LazyLoader;
 import com.blogspot.games.play.well.photographers.util.Log;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -31,6 +33,7 @@ public class AcPre extends SherlockActivity {
     public static final String IMAGES = "img";
     public static final int MORE_FROM_AUTHOR = 1;
     public static final int SHARE_LINK = 2;
+    public static final int SAVE_FILE = 3;
     public static String BASE_PATH = "http://photographers.com.ua";
     private MainPageListAdapter adapter;
     private BroadcastReceiver receiver;
@@ -50,7 +53,6 @@ public class AcPre extends SherlockActivity {
 
         //Add action bar
         ActionBar actionBar = getActionBar();
-
         actionBar.setIcon(R.drawable.logo);
 
 
@@ -78,6 +80,8 @@ public class AcPre extends SherlockActivity {
                 startActivity(intent);
             }
         });
+
+        registerForContextMenu(list);
 
 
         list.setOnLongClickListener(new View.OnLongClickListener() {
@@ -107,9 +111,18 @@ public class AcPre extends SherlockActivity {
 
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-        menu.add(MORE_FROM_AUTHOR, v.getId(), 0, "More from this photographer");
-        menu.add(SHARE_LINK, v.getId(), 0, "Share link with");
         super.onCreateContextMenu(menu, v, menuInfo);    //To change body of overridden methods use File | Settings | File Templates.
+        Log.d("On context menu create");
+
+        menu.add(MORE_FROM_AUTHOR, v.getId(), 0, "More from this photographer");
+        Integer id = (Integer) v.getTag();
+
+        CharSequence text = ((TextView) v.findViewById(R.id.picture_name)).getText();
+        Log.d("Selected:" + text);
+        Log.d("Context menu selected: id[" + id + "]");
+
+        menu.add(SHARE_LINK, 0, 0, "Share link with");
+        menu.add(SAVE_FILE, 0, 0, "Save image");
     }
 
     @Override
@@ -121,6 +134,18 @@ public class AcPre extends SherlockActivity {
                 break;
             case SHARE_LINK:
                 Toast.makeText(this, "Not implemented", Toast.LENGTH_LONG).show();
+                break;
+            case SAVE_FILE:
+
+                Image image = ImageRegister.getInstance().getImages().get(item.getItemId());
+
+                //Okay, i load it from the internet
+                Log.d("Load service before start");
+                Intent intent = new Intent(this, FileLoader.class);
+                intent.putExtra(FileLoader.FILE_URL, image.getBigImage());
+
+                startService(intent);
+
                 break;
         }
 
@@ -140,6 +165,8 @@ public class AcPre extends SherlockActivity {
                     adapter.notifyDataSetChanged();
                 } else if (LazyLoader.PAGE_LOADED.equals(action)) {
                     adapter.notifyDataSetChanged();
+                } else if (FileLoader.FILE_LOADED.equals(action)) {
+                    Toast.makeText(AcPre.this, "Image saved :)", Toast.LENGTH_SHORT).show();
                 }
 
 
@@ -147,7 +174,7 @@ public class AcPre extends SherlockActivity {
         };
         registerReceiver(receiver, new IntentFilter() {{
             addAction(LazyLoader.PAGE_LOADED);
-//            addAction(LazyLoader.NEW_ELEMENT);
+            addAction(FileLoader.FILE_LOADED);
         }}
         );
     }
