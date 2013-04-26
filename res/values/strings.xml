@@ -3,5 +3,6 @@
     <string name="app_name">PhotoGrabbers</string>
     <string name="big_img_menu_save">SAVE</string>
     <string name="big_img_menu_share">SHARE</string>
+    <string name="tag">TAG</string>
 
 </resources>

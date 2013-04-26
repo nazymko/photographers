@@ -83,7 +83,7 @@ public class MainPageListAdapter extends BaseAdapter {
 
         ImageLoader.getInstance().displayImage(item.getSmallImageUrl(), img, options);
 
-        convertView.setTag(ID_KEY, position);
+        convertView.setTag(R.string.tag, position);
         return convertView;
     }
 

@@ -83,7 +83,7 @@ public class AcPre extends SherlockActivity {
         list.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                Integer tag = (Integer) v.getTag(MainPageListAdapter.ID_KEY);
+                Integer tag = (Integer) v.getTag(R.string.tag);
 
 
                 return false;
