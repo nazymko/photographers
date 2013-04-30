@@ -3,7 +3,7 @@ package com.blogspot.games.play.well.photographers.services;
 import android.app.IntentService;
 import android.content.Intent;
 import com.blogspot.games.play.well.photographers.Image;
-import com.blogspot.games.play.well.photographers.ImageRegister;
+import com.blogspot.games.play.well.photographers.ImageNormalRegister;
 import com.blogspot.games.play.well.photographers.util.Log;
 
 import org.jsoup.Connection;
@@ -13,6 +13,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
+import java.net.SocketException;
 
 /**
  * User: patronus
@@ -27,6 +28,7 @@ public class LazyLoader extends IntentService {
     public static final String PAGE_LOADED = "PAGE_LOADED";
     public static final String NEW_ELEMENT = "NEW_ELEMENT";
     public static final String ITEM = "ITEM";
+    public static final String PAGE_NUMBER = "?page=";
 
     public LazyLoader(String name) {
         super(name);
@@ -45,18 +47,23 @@ public class LazyLoader extends IntentService {
 
         Log.d("service started, page" + page);
         //prepare url
-        String gridViewPage = PHOTOGRAPHERS_SUPPLY + page;
+        String gridViewPage;
         if (page == 0) {
             gridViewPage = PHOTOGRAPHERS_SUPPLY;
         } else {
-            gridViewPage = PHOTOGRAPHERS_SUPPLY + "?page=" + page;
+            gridViewPage = PHOTOGRAPHERS_SUPPLY + PAGE_NUMBER + page;
         }
 
 
         //get connection for reading
-        Connection connect = Jsoup.connect(gridViewPage);
-        connect.timeout(5000);
+        Connection connect = null;
 
+        while (connect == null) {
+            connect = Jsoup.connect(gridViewPage);
+
+        }
+        connect.timeout(5000);
+        Log.w("Page:" + gridViewPage);
         try {
             Log.d("after connect");
             Document document = connect.get();
@@ -74,7 +81,7 @@ public class LazyLoader extends IntentService {
 
                 String imageTitle = pictureWithInfo.select("div.info div.name a").text();
 
-                String authorPage = pictureWithInfo.select("div.info div.about a").attr("href");
+                String authorPage = pictureWithInfo.select("div.about a").attr("href");
 
                 String authorName = pictureWithInfo.select("div.info div.about a").text();
 
@@ -88,9 +95,9 @@ public class LazyLoader extends IntentService {
                 img.setAuthorPage(authorPage);
                 img.setImageName(imageTitle);
                 img.setRate(imageRate);
-                img.setNormalImagePage(bigImagePageUrl);
+                img.setBigImagePage(bigImagePageUrl);
 
-                ImageRegister.getInstance().getImages().add(img);
+                ImageNormalRegister.getInstance().getImages().add(img);
                 //add all this information to the cache manager - he must do something smart with this
 
 
@@ -105,7 +112,7 @@ public class LazyLoader extends IntentService {
         Intent imageGetter = new Intent(this, BigImageGetter.class);
         startService(imageGetter);
 
-        ImageRegister.getInstance().setCurrentPage(page);
+        ImageNormalRegister.getInstance().setPage(page);
 
         Intent message = new Intent();
         //Send message for updating

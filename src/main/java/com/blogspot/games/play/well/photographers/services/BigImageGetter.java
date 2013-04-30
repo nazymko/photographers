@@ -2,9 +2,12 @@ package com.blogspot.games.play.well.photographers.services;
 
 import android.app.IntentService;
 import android.content.Intent;
+import com.blogspot.games.play.well.photographers.IFRegister;
+import com.blogspot.games.play.well.photographers.ImageAuthorRegister;
+import com.blogspot.games.play.well.photographers.ImageNormalRegister;
+import com.blogspot.games.play.well.photographers.ac.AcBig;
 import com.blogspot.games.play.well.photographers.ac.AcPre;
 import com.blogspot.games.play.well.photographers.Image;
-import com.blogspot.games.play.well.photographers.ImageRegister;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
@@ -39,10 +42,23 @@ public class BigImageGetter extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
 
-        ImageRegister imageRegister = ImageRegister.getInstance();
+        int mode = intent.getIntExtra(AcBig.MODE, AcBig.MODE_NORMAL);
+        int startFrom=0;
+        List<Image> images = null;
+        IFRegister register = null;
+        switch (mode) {
+            case AcBig.MODE_AUTHOR:
+                register = ImageAuthorRegister.getInstance();
+                images = register.getImages();
+                startFrom = register.getImageProcessed();
+                break;
+            case AcBig.MODE_NORMAL:
+                register = ImageNormalRegister.getInstance();
+                images = register.getImages();
+                startFrom = register.getImageProcessed();
+                break;
+        }
 
-        List<Image> images = imageRegister.getImages();
-        int startFrom = imageRegister.getImageProcessed();
         if (images == null) {
             return;//Fuck this bugs!
         }
@@ -60,7 +76,7 @@ public class BigImageGetter extends IntentService {
             }
         }
 
-        imageRegister.setImageProcessed(to);
+        register.setImageProcessed(to);
 
 
     }

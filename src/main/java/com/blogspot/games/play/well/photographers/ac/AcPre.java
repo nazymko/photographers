@@ -11,18 +11,20 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 import com.actionbarsherlock.app.SherlockActivity;
 
 
 import com.blogspot.games.play.well.R;
 import com.blogspot.games.play.well.photographers.Image;
-import com.blogspot.games.play.well.photographers.ImageRegister;
+import com.blogspot.games.play.well.photographers.ImageAuthorRegister;
+import com.blogspot.games.play.well.photographers.ImageNormalRegister;
 import com.blogspot.games.play.well.photographers.adapter.EndlessScrollListener;
 import com.blogspot.games.play.well.photographers.adapter.MainPageListAdapter;
+import com.blogspot.games.play.well.photographers.services.AuthorLoader;
 import com.blogspot.games.play.well.photographers.services.FileLoader;
 import com.blogspot.games.play.well.photographers.services.LazyLoader;
+import com.blogspot.games.play.well.photographers.util.Dif;
 import com.blogspot.games.play.well.photographers.util.Log;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
@@ -53,7 +55,7 @@ public class AcPre extends SherlockActivity {
 
         //Add action bar
         ActionBar actionBar = getActionBar();
-        actionBar.setIcon(R.drawable.logo);
+        actionBar.setIcon(R.drawable.icon_v2_small);
 
 
         //Set previously loaded list element
@@ -68,31 +70,23 @@ public class AcPre extends SherlockActivity {
         adapter = new MainPageListAdapter(this, images);
 
         //Set global register
-        ImageRegister.getInstance().setImages(adapter.getImages());
+        ImageNormalRegister.getInstance().addImages(adapter.getImages());
         list.setAdapter(adapter);
         //Listeners etc
-        list.setOnScrollListener(new EndlessScrollListener(5, this));
+        list.setOnScrollListener(new EndlessScrollListener(this, LazyLoader.class));
         list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent intent = new Intent(AcPre.this, AcBig.class);
                 intent.putExtra(AcBig.POSITION, position);
+                intent.putExtra(AcBig.MODE, AcBig.MODE_NORMAL);
+                String author = ImageNormalRegister.getInstance().getImages().get(position).getAuthor();
+                intent.putExtra(AcAuthor.NAME, author);
                 startActivity(intent);
             }
         });
 
         registerForContextMenu(list);
-
-
-        list.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                Integer tag = (Integer) v.getTag(R.string.tag);
-
-
-                return false;
-            }
-        });
 
         registerBroadcastReceiver();
         //First start
@@ -111,16 +105,9 @@ public class AcPre extends SherlockActivity {
 
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-        super.onCreateContextMenu(menu, v, menuInfo);    //To change body of overridden methods use File | Settings | File Templates.
-        Log.d("On context menu create");
+        super.onCreateContextMenu(menu, v, menuInfo);
 
-        menu.add(MORE_FROM_AUTHOR, v.getId(), 0, "More from this photographer");
-        Integer id = (Integer) v.getTag();
-
-        CharSequence text = ((TextView) v.findViewById(R.id.picture_name)).getText();
-        Log.d("Selected:" + text);
-        Log.d("Context menu selected: id[" + id + "]");
-
+        menu.add(MORE_FROM_AUTHOR, 0, 0, "More from this photographer");
         menu.add(SHARE_LINK, 0, 0, "Share link with");
         menu.add(SAVE_FILE, 0, 0, "Save image");
     }
@@ -128,17 +115,23 @@ public class AcPre extends SherlockActivity {
     @Override
     public boolean onContextItemSelected(MenuItem item) {
         int groupId = item.getGroupId();
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+        Image image = ImageNormalRegister.getInstance().getImages().get(info.position);
+        //get selected element position in adapter
+        Log.d("Position:" + info.position);
 
+        Log.w("Item:" + image.toString());
         switch (groupId) {
             case MORE_FROM_AUTHOR:
+                Intent acStart = new Intent(this, AcAuthor.class);
+                acStart.putExtra(AuthorLoader.PAGE_URL, image.getAuthorPage());
+                acStart.putExtra(AuthorLoader.AUTHOR_NAME, image.getAuthor());
+                startActivity(acStart);
                 break;
             case SHARE_LINK:
-                Toast.makeText(this, "Not implemented", Toast.LENGTH_LONG).show();
+                Dif.share(this, image);
                 break;
             case SAVE_FILE:
-
-                Image image = ImageRegister.getInstance().getImages().get(item.getItemId());
-
                 //Okay, i load it from the internet
                 Log.d("Load service before start");
                 Intent intent = new Intent(this, FileLoader.class);
@@ -164,12 +157,11 @@ public class AcPre extends SherlockActivity {
                     adapter.addNew(img);
                     adapter.notifyDataSetChanged();
                 } else if (LazyLoader.PAGE_LOADED.equals(action)) {
+                    adapter.addImages(ImageNormalRegister.getInstance().getImages());
                     adapter.notifyDataSetChanged();
                 } else if (FileLoader.FILE_LOADED.equals(action)) {
                     Toast.makeText(AcPre.this, "Image saved :)", Toast.LENGTH_SHORT).show();
                 }
-
-
             }
         };
         registerReceiver(receiver, new IntentFilter() {{
@@ -183,5 +175,11 @@ public class AcPre extends SherlockActivity {
     protected void onDestroy() {
         unregisterReceiver(receiver);
         super.onDestroy();
+    }
+
+    @Override
+    protected void onStart() {
+        ImageAuthorRegister.getInstance().getImages().clear();//Clean author cache
+        super.onStart();
     }
 }

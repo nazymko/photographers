@@ -34,7 +34,7 @@ public class Image implements Serializable {
         return normalImagePage;
     }
 
-    public void setNormalImagePage(String normalImagePage) {
+    public void setBigImagePage(String normalImagePage) {
         this.normalImagePage = normalImagePage;
     }
 

@@ -5,7 +5,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 
@@ -16,14 +15,15 @@ import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.widget.ShareActionProvider;
 import com.blogspot.games.play.well.R;
 import com.blogspot.games.play.well.photographers.Image;
-import com.blogspot.games.play.well.photographers.ImageRegister;
+import com.blogspot.games.play.well.photographers.ImageAuthorRegister;
+import com.blogspot.games.play.well.photographers.ImageNormalRegister;
 import com.blogspot.games.play.well.photographers.adapter.BigScreenAdapter;
 import com.blogspot.games.play.well.photographers.services.FileLoader;
 import com.blogspot.games.play.well.photographers.services.LazyLoader;
+import com.blogspot.games.play.well.photographers.util.Dif;
 import com.blogspot.games.play.well.photographers.util.Log;
 
-import java.io.File;
-import java.net.URI;
+import java.util.List;
 
 /**
  * User: Andrew.Nazymko
@@ -31,23 +31,28 @@ import java.net.URI;
 public class AcBig extends SherlockFragmentActivity {
 
     public static final String POSITION = "POSITION";
-    private ShareActionProvider mShareActionProvider;
+    public static final String MODE = "MODE";
+    public static final int MODE_NORMAL = 1;
+    public static final int MODE_AUTHOR = 2;
     private ViewPager pager;
     private int picturePosition = 0;
     private BigScreenAdapter adapter;
+    private BroadcastReceiver receiver;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         picturePosition = getIntent().getIntExtra(POSITION, 0);
+        int mode = getIntent().getIntExtra(MODE, 0);
+
         setContentView(R.layout.ac_scale);
         Log.w("Position:" + picturePosition);
 
         pager = (ViewPager) findViewById(R.id.pager);
 
 
-        adapter = new BigScreenAdapter(this, getSupportFragmentManager());
+        adapter = new BigScreenAdapter(this, getSupportFragmentManager(), mode);
         pager.setAdapter(adapter);
 
         pager.setCurrentItem(picturePosition);
@@ -58,6 +63,7 @@ public class AcBig extends SherlockFragmentActivity {
         ActionBar actionBar = getActionBar();
         actionBar.setNavigationMode(ActionBar.DISPLAY_HOME_AS_UP);
         actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setIcon(R.drawable.icon_v2_small);
         registerReceiver();
     }
 
@@ -65,11 +71,6 @@ public class AcBig extends SherlockFragmentActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         com.actionbarsherlock.view.MenuInflater inflater = getSupportMenuInflater();
         inflater.inflate(R.menu.big_item_menu, menu);
-        // Locate MenuItem with ShareActionProvider
-        MenuItem item = menu.findItem(R.id.menu_share);
-
-        // Fetch and store ShareActionProvider
-        mShareActionProvider = (ShareActionProvider) item.getActionProvider();
         return true;
     }
 
@@ -83,7 +84,7 @@ public class AcBig extends SherlockFragmentActivity {
                 finish();
                 return true;
             case R.id.menu_save:
-                image = ImageRegister.getInstance().getImages().get(picturePosition);
+                image = ImageNormalRegister.getInstance().getImages().get(picturePosition);
                 //Okay, i load it from the internet
                 Log.d("Load service before start");
                 intent = new Intent(this, FileLoader.class);
@@ -94,8 +95,8 @@ public class AcBig extends SherlockFragmentActivity {
             case R.id.menu_share:
                 //Share image url on the site
 
-                image = ImageRegister.getInstance().getImages().get(picturePosition);
-                onShareCome(image);
+                image = ImageNormalRegister.getInstance().getImages().get(picturePosition);
+                Dif.share(this, image);
 
                 break;
             default:
@@ -104,65 +105,32 @@ public class AcBig extends SherlockFragmentActivity {
         return true;
     }
 
-    private void onShareCome(Image img) {
-        Intent shareIntent = new Intent(Intent.ACTION_SEND);
-
-        String file = img.getBigImage();
-        shareIntent.setType("text/plain");
-
-        //Send just image url
-
-        Log.d("Share intend, img = " + file);
-
-
-        shareIntent.putExtra(Intent.EXTRA_TEXT, file);
-        String subject = getString(R.string.app_name) + getInfo(img);
-        shareIntent.putExtra(Intent.EXTRA_SUBJECT, subject);
-
-
-        if (imageLoaded(file)) {
-            Uri ur = Uri.fromFile(new File(FileLoader.SAVE_PATH + file.substring(file.lastIndexOf("/"))));
-            shareIntent.putExtra(Intent.EXTRA_STREAM, ur);
-        }
-
-        startActivity(Intent.createChooser(shareIntent, "Share image to.."));
-    }
-
-    private String getInfo(Image img) {
-        if (img.getImageName() != null && img.getImageName().length() > 3) {
-            return " - " + img.getImageName();
-        } else if (img.getAuthor() != null && img.getAuthor().length() > 3) {
-            return " - " + img.getAuthor();
-        }
-
-        return "";
-    }
-
-    private boolean imageLoaded(String file) {
-        String substring = file.substring(file.lastIndexOf("/"));
-        return new File(FileLoader.SAVE_PATH + substring).exists();
-    }
-
     private void registerReceiver() {
-        registerReceiver(new BroadcastReceiver() {
-                             @Override
-                             public void onReceive(Context context, Intent intent) {
-                                 String action = intent.getAction();
-                                 Log.d("action = [" + action + "]");
-                                 if (FileLoader.FILE_LOADED.equals(action)) {
-                                     Bundle extras = intent.getExtras();
-                                     //We load some image
-                                     Toast.makeText(AcBig.this, "Image saved :)", Toast.LENGTH_LONG).show();
+        receiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                String action = intent.getAction();
+                Log.d("action = [" + action + "]");
+                if (FileLoader.FILE_LOADED.equals(action)) {
+                    Bundle extras = intent.getExtras();
+                    //We load some image
+                    Toast.makeText(AcBig.this, "Image saved :)", Toast.LENGTH_LONG).show();
 
-                                 } else if (LazyLoader.PAGE_LOADED.equals(action)) {
-                                     adapter.notifyDataSetChanged();
-                                 }
-                             }
-                         }, new IntentFilter() {{
-                             addAction(FileLoader.FILE_LOADED);
-                             addAction(LazyLoader.PAGE_LOADED);
-                         }}
+                } else if (LazyLoader.PAGE_LOADED.equals(action)) {
+                    adapter.notifyDataSetChanged();
+                }
+            }
+        };
+        registerReceiver(receiver, new IntentFilter() {{
+            addAction(FileLoader.FILE_LOADED);
+            addAction(LazyLoader.PAGE_LOADED);
+        }}
         );
     }
 
+    @Override
+    protected void onPause() {
+        unregisterReceiver(receiver);
+        super.onPause();    //To change body of overridden methods use File | Settings | File Templates.
+    }
 }

@@ -6,8 +6,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import com.blogspot.games.play.well.photographers.IFRegister;
 import com.blogspot.games.play.well.photographers.Image;
-import com.blogspot.games.play.well.photographers.ImageRegister;
+import com.blogspot.games.play.well.photographers.ImageNormalRegister;
 import com.blogspot.games.play.well.R;
 
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
@@ -18,6 +19,7 @@ import com.nostra13.universalimageloader.core.ImageLoader;
  */
 public class Frame extends Fragment {
     private int position;
+    private IFRegister source;
 
     public Frame(int position) {
         this.position = position;
@@ -25,6 +27,11 @@ public class Frame extends Fragment {
 
     public Frame() {
 
+    }
+
+    public Frame(int position, IFRegister source) {
+        this.position = position;
+        this.source = source;
     }
 
     @Override
@@ -40,7 +47,7 @@ public class Frame extends Fragment {
         ImageView imageView = (ImageView) frm.findViewById(R.id.scalable_image_view);
         imageView.setScaleType(ImageView.ScaleType.MATRIX);
 
-        Image image = ImageRegister.getInstance().getImages().get(position);
+        Image image = source.getImages().get(position);
 
 
         DisplayImageOptions options = new DisplayImageOptions.Builder()

@@ -1,7 +1,7 @@
 package com.blogspot.games.play.well.photographers.adapter;
 
 import android.app.Activity;
-import android.content.Context;
+import android.content.Intent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -9,6 +9,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import com.blogspot.games.play.well.R;
 import com.blogspot.games.play.well.photographers.Image;
+import com.blogspot.games.play.well.photographers.ImageAuthorRegister;
+import com.blogspot.games.play.well.photographers.services.AuthorLoader;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
@@ -19,8 +21,18 @@ import java.util.List;
  * User: patronus
  */
 public class AuthorAdapter extends BaseAdapter {
-    List<Image> images = new ArrayList<Image>();
+    public List<Image> getImages() {
+        return images;
+    }
+
+    public void setImages(List<Image> images) {
+        this.images = images;
+    }
+
+    private List<Image> images = new ArrayList<Image>();
+    private int padding = 5;
     private Activity context;
+    private boolean loading;
 
     public AuthorAdapter(Activity context, List<Image> images) {
         this.context = context;
@@ -28,8 +40,13 @@ public class AuthorAdapter extends BaseAdapter {
     }
 
     public void addAll(List<Image> newImages) {
-        images.addAll(newImages);
-        newImages.clear();
+        //Add only new
+        for (Image newImage : newImages) {
+            if (!images.contains(newImage)) {
+                images.add(newImage);
+            }
+        }
+
     }
 
     @Override
@@ -65,7 +82,7 @@ public class AuthorAdapter extends BaseAdapter {
                 .build();
 
         TextView rate = (TextView) convertView.findViewById(R.id.img_rate);
-        rate.setError(item.getRate());
+        rate.setText(item.getRate());
         TextView name = (TextView) convertView.findViewById(R.id.picture_name);
 
         name.setText(item.getImageName());

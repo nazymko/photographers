@@ -36,9 +36,14 @@ public class MainPageListAdapter extends BaseAdapter {
         return images;
     }
 
-    public void setImages(List<Image> imagesCache) {
-        this.images.addAll(imagesCache);
-        imagesCache.clear();
+    public void addImages(List<Image> imagesCache) {
+        for (Image image : imagesCache) {
+            if (!images.contains(image)) {
+                images.add(image);
+            }
+        }
+
+
     }
 
     @Override
@@ -79,11 +84,14 @@ public class MainPageListAdapter extends BaseAdapter {
         }
 
 
-        DisplayImageOptions options = new DisplayImageOptions.Builder().showStubImage(R.drawable.noimage).showImageForEmptyUri(R.drawable.simple).cacheInMemory().cacheOnDisc().build();
+        convertView.setId(position);
+        DisplayImageOptions options = new DisplayImageOptions.Builder().showStubImage(R.drawable.noimage).cacheInMemory().cacheOnDisc().build();
 
         ImageLoader.getInstance().displayImage(item.getSmallImageUrl(), img, options);
+        TextView viewById = (TextView) convertView.findViewById(R.id.hidden_id);
+        viewById.setText(String.valueOf(position));
 
-        convertView.setTag(position);
+//        convertView.setTag(position);
         return convertView;
     }
 
