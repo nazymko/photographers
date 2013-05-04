@@ -2,6 +2,7 @@ package com.blogspot.games.play.well.photographers.services;
 
 import android.app.IntentService;
 import android.content.Intent;
+import com.blogspot.games.play.well.photographers.ac.AcPre;
 import com.blogspot.games.play.well.photographers.util.Log;
 
 
@@ -13,24 +14,25 @@ import java.net.URLConnection;
 /**
  * User: patronus
  */
-public class FileLoader extends IntentService {
+public class FileSaver extends IntentService {
 
     public static final String FILE_URL = "FILE_URL";
-    public static final String FILE_LOADED = "FILE_LOADED";
+    public static final String ACTION_FILE_LOADED = "ACTION_FILE_LOADED";
     public static final String FILE = "FILE";
     public static final String SHARE = "SHARE";
     public static final String SAVE_PATH = "/sdcard/" + "PhotoGraphers/";
+    public static final String ACTION_FILE_NOT_LOADED = "ACTION_FILE_NOT_LOADED";
 
     /**
      * Creates an IntentService.  Invoked by your subclass's constructor.
      *
      * @param name Used to name the worker thread, important only for debugging.
      */
-    public FileLoader(String name) {
+    public FileSaver(String name) {
         super(name);
     }
 
-    public FileLoader() {
+    public FileSaver() {
         super("Load service");
     }
 
@@ -58,6 +60,12 @@ public class FileLoader extends IntentService {
 
             String fileName = getName(fileUrl);
 
+            if (AcPre.BASE_PATH.equals(fileUrl) || fileName.trim().length() == 0) {
+                //Image not found(adult content)
+                sendError();
+                return;
+            }
+
             // download the file
             Log.d("Prepare file to save:" + fileDir);
             InputStream input = new BufferedInputStream(url.openStream());
@@ -83,11 +91,7 @@ public class FileLoader extends IntentService {
 
             Log.d("Sending broadcast");
 
-            Intent goodNewsSummoner = new Intent(FILE_LOADED);
-            if (isShare) {
-                goodNewsSummoner.putExtra(FILE, img.toString());
-            }
-            sendBroadcast(goodNewsSummoner);
+            sendGoodFinish(isShare, img);
 
         } catch (MalformedURLException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
@@ -98,9 +102,22 @@ public class FileLoader extends IntentService {
 
     }
 
+    private void sendGoodFinish(boolean share, File img) {
+        Intent goodNewsSummoner = new Intent(ACTION_FILE_LOADED);
+//        if (share) {
+        goodNewsSummoner.putExtra(FILE, img.toString());
+//        }
+        sendBroadcast(goodNewsSummoner);
+    }
+
+    private void sendError() {
+        Intent goodNewsSummoner = new Intent(ACTION_FILE_NOT_LOADED);
+
+        sendBroadcast(goodNewsSummoner);
+    }
+
     private String getName(String fileUrl) {
-        String substring = fileUrl.substring(fileUrl.lastIndexOf("/"));
         //Unsafe code!!!
-        return substring;
+        return fileUrl.substring(fileUrl.lastIndexOf("/"));
     }
 }

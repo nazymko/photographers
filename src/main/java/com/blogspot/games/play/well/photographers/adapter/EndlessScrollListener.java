@@ -3,7 +3,7 @@ package com.blogspot.games.play.well.photographers.adapter;
 import android.app.Activity;
 import android.content.Intent;
 import android.widget.AbsListView;
-import com.blogspot.games.play.well.photographers.services.LazyLoader;
+import com.blogspot.games.play.well.photographers.services.FeedNormalLoader;
 import com.blogspot.games.play.well.photographers.util.Log;
 
 import java.util.HashMap;
@@ -53,7 +53,7 @@ public class EndlessScrollListener implements AbsListView.OnScrollListener {
                 service.putExtra(key, otherParam.get(key));
             }
 
-            service.putExtra(LazyLoader.PAGE, currentPage + 1);
+            service.putExtra(FeedNormalLoader.PAGE, currentPage + 1);
             context.startService(service);
             loading = true;
         }

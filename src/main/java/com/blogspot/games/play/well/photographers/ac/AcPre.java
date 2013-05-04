@@ -21,9 +21,9 @@ import com.blogspot.games.play.well.photographers.ImageAuthorRegister;
 import com.blogspot.games.play.well.photographers.ImageNormalRegister;
 import com.blogspot.games.play.well.photographers.adapter.EndlessScrollListener;
 import com.blogspot.games.play.well.photographers.adapter.MainPageListAdapter;
-import com.blogspot.games.play.well.photographers.services.AuthorLoader;
-import com.blogspot.games.play.well.photographers.services.FileLoader;
-import com.blogspot.games.play.well.photographers.services.LazyLoader;
+import com.blogspot.games.play.well.photographers.services.FeedAuthorLoader;
+import com.blogspot.games.play.well.photographers.services.FeedNormalLoader;
+import com.blogspot.games.play.well.photographers.services.FileSaver;
 import com.blogspot.games.play.well.photographers.util.Dif;
 import com.blogspot.games.play.well.photographers.util.Log;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -55,7 +55,7 @@ public class AcPre extends SherlockActivity {
 
         //Add action bar
         ActionBar actionBar = getActionBar();
-        actionBar.setIcon(R.drawable.icon_v2_small);
+//        actionBar.setIcon(R.drawable.icon_v2_small);
 
 
         //Set previously loaded list element
@@ -73,7 +73,7 @@ public class AcPre extends SherlockActivity {
         ImageNormalRegister.getInstance().addImages(adapter.getImages());
         list.setAdapter(adapter);
         //Listeners etc
-        list.setOnScrollListener(new EndlessScrollListener(this, LazyLoader.class));
+        list.setOnScrollListener(new EndlessScrollListener(this, FeedNormalLoader.class));
         list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -90,8 +90,8 @@ public class AcPre extends SherlockActivity {
 
         registerBroadcastReceiver();
         //First start
-        Intent service = new Intent(this, LazyLoader.class);
-        service.putExtra(LazyLoader.PAGE, 0);
+        Intent service = new Intent(this, FeedNormalLoader.class);
+        service.putExtra(FeedNormalLoader.PAGE, 0);
         startService(service);
     }
 
@@ -124,8 +124,8 @@ public class AcPre extends SherlockActivity {
         switch (groupId) {
             case MORE_FROM_AUTHOR:
                 Intent acStart = new Intent(this, AcAuthor.class);
-                acStart.putExtra(AuthorLoader.PAGE_URL, image.getAuthorPage());
-                acStart.putExtra(AuthorLoader.AUTHOR_NAME, image.getAuthor());
+                acStart.putExtra(FeedAuthorLoader.PAGE_URL, image.getAuthorPage());
+                acStart.putExtra(FeedAuthorLoader.AUTHOR_NAME, image.getAuthor());
                 startActivity(acStart);
                 break;
             case SHARE_LINK:
@@ -134,8 +134,8 @@ public class AcPre extends SherlockActivity {
             case SAVE_FILE:
                 //Okay, i load it from the internet
                 Log.d("Load service before start");
-                Intent intent = new Intent(this, FileLoader.class);
-                intent.putExtra(FileLoader.FILE_URL, image.getBigImage());
+                Intent intent = new Intent(this, FileSaver.class);
+                intent.putExtra(FileSaver.FILE_URL, image.getBigImage());
 
                 startService(intent);
 
@@ -151,22 +151,27 @@ public class AcPre extends SherlockActivity {
             public void onReceive(Context context, Intent intent) {
                 String action = intent.getAction();
                 Log.d("Received [" + action + "]");
-                if (LazyLoader.NEW_ELEMENT.equals(action)) {
-                    Image img = (Image) intent.getExtras().get(LazyLoader.ITEM);
+                if (FeedNormalLoader.NEW_ELEMENT.equals(action)) {
+                    Image img = (Image) intent.getExtras().get(FeedNormalLoader.ITEM);
                     Log.d("new item:" + img);
                     adapter.addNew(img);
                     adapter.notifyDataSetChanged();
-                } else if (LazyLoader.PAGE_LOADED.equals(action)) {
+                } else if (FeedNormalLoader.ACTION_PAGE_LOADED.equals(action)) {
                     adapter.addImages(ImageNormalRegister.getInstance().getImages());
                     adapter.notifyDataSetChanged();
-                } else if (FileLoader.FILE_LOADED.equals(action)) {
-                    Toast.makeText(AcPre.this, "Image saved :)", Toast.LENGTH_SHORT).show();
+                } else if (FileSaver.ACTION_FILE_LOADED.equals(action)) {
+                    String file = intent.getStringExtra(FileSaver.FILE);
+                    Toast.makeText(AcPre.this, "Image saved :)\n" + file, Toast.LENGTH_SHORT).show();
+                } else if (FileSaver.ACTION_FILE_NOT_LOADED.equals(action)) {
+
+                    Toast.makeText(AcPre.this, "Sorry, adult content :(", Toast.LENGTH_SHORT).show();
                 }
             }
         };
         registerReceiver(receiver, new IntentFilter() {{
-            addAction(LazyLoader.PAGE_LOADED);
-            addAction(FileLoader.FILE_LOADED);
+            addAction(FeedNormalLoader.ACTION_PAGE_LOADED);
+            addAction(FileSaver.ACTION_FILE_LOADED);
+            addAction(FileSaver.ACTION_FILE_NOT_LOADED);
         }}
         );
     }

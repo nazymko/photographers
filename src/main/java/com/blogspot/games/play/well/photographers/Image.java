@@ -12,7 +12,7 @@ public class Image implements Serializable {
     String rate = "0";
     String author = "*.*";
     String authorPage;
-    private String bigImage;
+    String bigImage;
 
     public String getAuthorPage() {
         return authorPage;
@@ -80,5 +80,29 @@ public class Image implements Serializable {
 
     public String getBigImage() {
         return bigImage;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Image)) return false;
+
+        Image image = (Image) o;
+
+        if (imageName != null ? !imageName.equals(image.imageName) : image.imageName != null) return false;
+        if (normalImagePage != null ? !normalImagePage.equals(image.normalImagePage) : image.normalImagePage != null)
+            return false;
+        if (smallImageUrl != null ? !smallImageUrl.equals(image.smallImageUrl) : image.smallImageUrl != null)
+            return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = smallImageUrl != null ? smallImageUrl.hashCode() : 0;
+        result = 31 * result + (normalImagePage != null ? normalImagePage.hashCode() : 0);
+        result = 31 * result + (imageName != null ? imageName.hashCode() : 0);
+        return result;
     }
 }

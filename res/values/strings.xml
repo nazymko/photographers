@@ -4,5 +4,6 @@
     <string name="big_img_menu_save">SAVE</string>
     <string name="big_img_menu_share">SHARE</string>
     <string name="tag">TAG</string>
+    <string name="unnamed_image">Unnamed</string>
 
 </resources>

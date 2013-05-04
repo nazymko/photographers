@@ -4,6 +4,7 @@ import android.app.IntentService;
 import android.content.Intent;
 import com.blogspot.games.play.well.photographers.Image;
 import com.blogspot.games.play.well.photographers.ImageNormalRegister;
+import com.blogspot.games.play.well.photographers.services.support.BINGetter;
 import com.blogspot.games.play.well.photographers.util.Log;
 
 import org.jsoup.Connection;
@@ -13,29 +14,29 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
-import java.net.SocketException;
 
 /**
  * User: patronus
  * <p/>
  * Special for photographers.com.ua site
  */
-public class LazyLoader extends IntentService {
+public class FeedNormalLoader extends IntentService {
 
     public static final String PHOTOGRAPHERS_SUPPLY = "http://photographers.com.ua/pictures/days/30/";
     public static final String PAGE = "PAGE";
     //Activity actions
-    public static final String PAGE_LOADED = "PAGE_LOADED";
+    public static final String ACTION_PAGE_LOADED = "ACTION_PAGE_LOADED";
     public static final String NEW_ELEMENT = "NEW_ELEMENT";
     public static final String ITEM = "ITEM";
     public static final String PAGE_NUMBER = "?page=";
+    public static final String ACTION_NAME_CHANGE = "ACTION_NAME_CHANGE";
 
-    public LazyLoader(String name) {
+    public FeedNormalLoader(String name) {
         super(name);
     }
 
 
-    public LazyLoader() {
+    public FeedNormalLoader() {
         super("lazy.loader.service");
     }
 
@@ -109,14 +110,14 @@ public class LazyLoader extends IntentService {
         }
 
         //Start load all big images url
-        Intent imageGetter = new Intent(this, BigImageGetter.class);
+        Intent imageGetter = new Intent(this, BINGetter.class);
         startService(imageGetter);
 
         ImageNormalRegister.getInstance().setPage(page);
 
         Intent message = new Intent();
         //Send message for updating
-        message.setAction(PAGE_LOADED);
+        message.setAction(ACTION_PAGE_LOADED);
         Log.d("Broadcast message send");
         sendBroadcast(message);
     }

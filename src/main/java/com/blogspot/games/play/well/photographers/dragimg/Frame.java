@@ -1,5 +1,6 @@
 package com.blogspot.games.play.well.photographers.dragimg;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -11,6 +12,10 @@ import com.blogspot.games.play.well.photographers.Image;
 import com.blogspot.games.play.well.photographers.ImageNormalRegister;
 import com.blogspot.games.play.well.R;
 
+import com.blogspot.games.play.well.photographers.ac.AcAuthor;
+import com.blogspot.games.play.well.photographers.ac.AcBig;
+import com.blogspot.games.play.well.photographers.services.FeedNormalLoader;
+import com.blogspot.games.play.well.photographers.util.Log;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
@@ -32,6 +37,7 @@ public class Frame extends Fragment {
     public Frame(int position, IFRegister source) {
         this.position = position;
         this.source = source;
+
     }
 
     @Override
@@ -54,16 +60,23 @@ public class Frame extends Fragment {
                 .cacheInMemory()
                 .showStubImage(R.drawable.loading)
                 .showImageOnFail(R.drawable.failed)
+                .showImageForEmptyUri(R.drawable.loading_not_ready)
                 .build();
 
+        Intent changeName = new Intent();
+        changeName.setAction(FeedNormalLoader.ACTION_NAME_CHANGE);
+        changeName.putExtra(AcAuthor.NAME, image.getAuthor());
 
+        getActivity().sendBroadcast(changeName);
+
+
+        String bigImage = image.getBigImage();
+        Log.d("Image loader get url :" + bigImage);
         ImageLoader.getInstance()
-                .displayImage(image.getBigImage(), imageView, options);
+                .displayImage(bigImage, imageView, options);
 
 
         frm.setOnTouchListener(new PanAndZoomListener(frm, imageView, PanAndZoomListener.Anchor.TOPLEFT));
-
-
         return frm;
     }
 }

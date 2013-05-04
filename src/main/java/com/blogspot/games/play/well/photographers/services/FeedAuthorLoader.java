@@ -5,7 +5,7 @@ import android.content.Intent;
 import com.blogspot.games.play.well.photographers.IFRegister;
 import com.blogspot.games.play.well.photographers.Image;
 import com.blogspot.games.play.well.photographers.ImageAuthorRegister;
-import com.blogspot.games.play.well.photographers.ac.AcBig;
+import com.blogspot.games.play.well.photographers.services.support.BIAGetter;
 import com.blogspot.games.play.well.photographers.util.Log;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
@@ -18,7 +18,7 @@ import java.io.IOException;
 /**
  * User: patronus
  */
-public class AuthorLoader extends IntentService {
+public class FeedAuthorLoader extends IntentService {
 
     public static final String AUTHOR_PAGE_LOADED = "AUTHOR_PAGE_LOADED";
     public static final String PAGE = "PAGE";
@@ -34,12 +34,12 @@ public class AuthorLoader extends IntentService {
      *
      * @param name Used to name the worker thread, important only for debugging.
      */
-    public AuthorLoader(String name) {
+    public FeedAuthorLoader(String name) {
         super(name);
     }
 
-    public AuthorLoader() {
-        super(AuthorLoader.class.getName());
+    public FeedAuthorLoader() {
+        super(FeedAuthorLoader.class.getName());
     }
 
     @Override
@@ -71,10 +71,13 @@ public class AuthorLoader extends IntentService {
             IFRegister imageCache = ImageAuthorRegister.getInstance();
             for (Element element : select) {
                 Image image = new Image();
-
+                //Get the components of the image
                 String rate = element.select("span.score.plus").text();
+
                 String smallImagePage = element.select("a img").attr("src");
+
                 String bigImagePage = element.select("a").attr("href");
+
                 String imageTitle = element.select("div.name a").text();
 
                 image.setBigImagePage(bigImagePage);
@@ -90,8 +93,8 @@ public class AuthorLoader extends IntentService {
 
             }
             imageCache.setPage(page + 1);
-            sendFinish();
 
+            sendFinish();
         } catch (IOException e) {
             //Send error message to user
             sendError();
@@ -99,9 +102,7 @@ public class AuthorLoader extends IntentService {
         }
 
 
-        Intent service = new Intent(this,BigImageGetter.class);
-        service.putExtra(AcBig.MODE, AcBig.MODE_AUTHOR);
-
+        Intent service = new Intent(this, BIAGetter.class);
         startService(service);
 
 

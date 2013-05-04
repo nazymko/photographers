@@ -11,8 +11,8 @@ import com.blogspot.games.play.well.photographers.ImageAuthorRegister;
 import com.blogspot.games.play.well.photographers.ImageNormalRegister;
 import com.blogspot.games.play.well.photographers.ac.AcBig;
 import com.blogspot.games.play.well.photographers.dragimg.Frame;
-import com.blogspot.games.play.well.photographers.services.AuthorLoader;
-import com.blogspot.games.play.well.photographers.services.LazyLoader;
+import com.blogspot.games.play.well.photographers.services.FeedAuthorLoader;
+import com.blogspot.games.play.well.photographers.services.FeedNormalLoader;
 
 import java.util.List;
 
@@ -25,6 +25,10 @@ public class BigScreenAdapter extends FragmentPagerAdapter {
     private final List<Image> images;
     boolean loading = false;
     private int mode;
+
+    public List<Image> getImages() {
+        return images;
+    }
 
     public BigScreenAdapter(Context context, FragmentManager fm, int mode) {
         super(fm);
@@ -41,14 +45,12 @@ public class BigScreenAdapter extends FragmentPagerAdapter {
         if (i < getCount() - WRAP_COUNT) {
             loading = true;
             Intent intent = new Intent(context, getLoader(mode));
-            intent.putExtra(LazyLoader.PAGE, getSource(mode).getPage() + 1);
-
-
-
+            intent.putExtra(FeedNormalLoader.PAGE, getSource(mode).getPage() + 1);
 
             context.startService(intent);
         } else {
             loading = false;
+
         }
         return new Frame(i, getSource(mode));
     }
@@ -73,9 +75,9 @@ public class BigScreenAdapter extends FragmentPagerAdapter {
     private Class getLoader(int mode) {
         switch (mode) {
             case AcBig.MODE_AUTHOR:
-                return AuthorLoader.class;
+                return FeedAuthorLoader.class;
             case AcBig.MODE_NORMAL:
-                return LazyLoader.class;
+                return FeedNormalLoader.class;
         }
         return null;
     }

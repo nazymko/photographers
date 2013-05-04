@@ -1,7 +1,6 @@
 package com.blogspot.games.play.well.photographers.adapter;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -9,8 +8,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import com.blogspot.games.play.well.R;
 import com.blogspot.games.play.well.photographers.Image;
-import com.blogspot.games.play.well.photographers.ImageAuthorRegister;
-import com.blogspot.games.play.well.photographers.services.AuthorLoader;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
