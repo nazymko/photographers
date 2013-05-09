@@ -15,6 +15,7 @@ import android.widget.Toast;
 import com.actionbarsherlock.app.SherlockActivity;
 
 
+import com.actionbarsherlock.view.Menu;
 import com.blogspot.games.play.well.R;
 import com.blogspot.games.play.well.photographers.Image;
 import com.blogspot.games.play.well.photographers.ImageAuthorRegister;
@@ -113,6 +114,13 @@ public class AcPre extends SherlockActivity {
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getSherlock().getMenuInflater().inflate(R.menu.feed_back, menu);
+
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
     public boolean onContextItemSelected(MenuItem item) {
         int groupId = item.getGroupId();
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
@@ -135,7 +143,7 @@ public class AcPre extends SherlockActivity {
                 //Okay, i load it from the internet
                 Log.d("Load service before start");
                 Intent intent = new Intent(this, FileSaver.class);
-                intent.putExtra(FileSaver.FILE_URL, image.getBigImage());
+                intent.putExtra(FileSaver.FILE_URL, image.getBigImageUrl());
 
                 startService(intent);
 
@@ -174,6 +182,25 @@ public class AcPre extends SherlockActivity {
             addAction(FileSaver.ACTION_FILE_NOT_LOADED);
         }}
         );
+    }
+
+    @Override
+    public boolean onMenuItemSelected(int featureId, MenuItem item) {
+        if (item.getItemId() == R.id.menu_feed_back) {
+
+            Intent intent = new Intent();
+            intent.setAction(Intent.ACTION_SEND);
+            intent.setType("message/rfc822");
+            intent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.app_name) + " feed back");
+            intent.putExtra(Intent.EXTRA_EMAIL, new String[]{getString(R.string.feedback_email)});
+
+            Log.d("Send feedback action");
+            sendBroadcast(intent);
+            startActivity(Intent.createChooser(intent, "Feedback via..."));
+
+
+        }
+        return super.onMenuItemSelected(featureId, item);    //To change body of overridden methods use File | Settings | File Templates.
     }
 
     @Override

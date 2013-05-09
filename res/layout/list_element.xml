@@ -12,7 +12,7 @@
               android:visibility="gone"/>
 
     <ImageView
-            android:src="@drawable/test"
+
             android:layout_width="fill_parent"
             android:layout_height="160dp"
             android:id="@+id/imageView"

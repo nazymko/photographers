@@ -9,11 +9,9 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import com.blogspot.games.play.well.photographers.IFRegister;
 import com.blogspot.games.play.well.photographers.Image;
-import com.blogspot.games.play.well.photographers.ImageNormalRegister;
 import com.blogspot.games.play.well.R;
 
 import com.blogspot.games.play.well.photographers.ac.AcAuthor;
-import com.blogspot.games.play.well.photographers.ac.AcBig;
 import com.blogspot.games.play.well.photographers.services.FeedNormalLoader;
 import com.blogspot.games.play.well.photographers.util.Log;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
@@ -22,19 +20,19 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 /**
  * User: Andrew.Nazymko
  */
-public class Frame extends Fragment {
+public class ImageFrame extends Fragment {
     private int position;
     private IFRegister source;
 
-    public Frame(int position) {
+    public ImageFrame(int position) {
         this.position = position;
     }
 
-    public Frame() {
+    public ImageFrame() {
 
     }
 
-    public Frame(int position, IFRegister source) {
+    public ImageFrame(int position, IFRegister source) {
         this.position = position;
         this.source = source;
 
@@ -59,8 +57,10 @@ public class Frame extends Fragment {
         DisplayImageOptions options = new DisplayImageOptions.Builder()
                 .cacheInMemory()
                 .showStubImage(R.drawable.loading)
-                .showImageOnFail(R.drawable.failed)
-                .showImageForEmptyUri(R.drawable.loading_not_ready)
+                .showImageOnFail(R.drawable.adult_censored)
+                .showImageForEmptyUri(R.drawable.adult_censored)
+
+                .cacheInMemory()
                 .build();
 
         Intent changeName = new Intent();
@@ -70,8 +70,10 @@ public class Frame extends Fragment {
         getActivity().sendBroadcast(changeName);
 
 
-        String bigImage = image.getBigImage();
+        String bigImage = image.getBigImageUrl();
+
         Log.d("Image loader get url :" + bigImage);
+
         ImageLoader.getInstance()
                 .displayImage(bigImage, imageView, options);
 

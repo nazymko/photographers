@@ -53,6 +53,7 @@ public class AcBig extends SherlockFragmentActivity {
         pager.setCurrentItem(picturePosition);
 
 
+
         //add save action bar item
 
         ActionBar actionBar = getActionBar();
@@ -88,7 +89,7 @@ public class AcBig extends SherlockFragmentActivity {
                 //Okay, i load it from the internet
                 Log.d("Load service before start");
                 intent = new Intent(this, FileSaver.class);
-                intent.putExtra(FileSaver.FILE_URL, image.getBigImage());
+                intent.putExtra(FileSaver.FILE_URL, image.getBigImageUrl());
                 startService(intent);
 
                 break;
@@ -136,8 +137,8 @@ public class AcBig extends SherlockFragmentActivity {
     }
 
     @Override
-    protected void onPause() {
+    protected void onDestroy() {
         unregisterReceiver(receiver);
-        super.onPause();    //To change body of overridden methods use File | Settings | File Templates.
+        super.onDestroy();
     }
 }

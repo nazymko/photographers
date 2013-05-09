@@ -18,7 +18,7 @@ public class Dif {
     public static void share(Activity activity, Image img) {
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
 
-        String file = img.getBigImage();
+        String file = img.getBigImageUrl();
         shareIntent.setType("text/plain");
 
         if (file == null) {

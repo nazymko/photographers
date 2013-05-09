@@ -14,6 +14,9 @@ public class ImageUtil {
         Document document = Jsoup.connect(page).get();
 
         String src = document.select("img#theImage").attr("src");
+        if (src == null) {
+            return null;
+        }
 
         return AcPre.BASE_PATH + src;
     }

@@ -16,7 +16,6 @@ import com.blogspot.games.play.well.R;
 import com.blogspot.games.play.well.photographers.IFRegister;
 import com.blogspot.games.play.well.photographers.Image;
 import com.blogspot.games.play.well.photographers.ImageAuthorRegister;
-import com.blogspot.games.play.well.photographers.ImageNormalRegister;
 import com.blogspot.games.play.well.photographers.adapter.AuthorAdapter;
 import com.blogspot.games.play.well.photographers.adapter.EndlessScrollListener;
 import com.blogspot.games.play.well.photographers.services.FeedAuthorLoader;
@@ -134,7 +133,7 @@ public class AcAuthor extends SherlockActivity {
                 //Okay, i load it from the internet
                 Log.d("Load service before start");
                 Intent intent = new Intent(this, FileSaver.class);
-                intent.putExtra(FileSaver.FILE_URL, image.getBigImage());
+                intent.putExtra(FileSaver.FILE_URL, image.getBigImageUrl());
 
                 startService(intent);
 

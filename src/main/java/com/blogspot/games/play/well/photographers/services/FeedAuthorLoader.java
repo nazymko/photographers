@@ -61,6 +61,9 @@ public class FeedAuthorLoader extends IntentService {
         }
 
         Log.w("Page:" + userPage);
+        if (userPage == null || userPage.length() == 0) {
+            return;
+        }
         Connection connect = Jsoup.connect(userPage);
         connect.timeout(5000);
 

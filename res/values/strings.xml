@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">PhotoGrabbers</string>
+    <string name="app_name">PhotoGraphers</string>
     <string name="big_img_menu_save">SAVE</string>
     <string name="big_img_menu_share">SHARE</string>
     <string name="tag">TAG</string>
     <string name="unnamed_image">Unnamed</string>
+    <string name="feedback_email">photographers.developers@gmail.com</string>
 
 </resources>

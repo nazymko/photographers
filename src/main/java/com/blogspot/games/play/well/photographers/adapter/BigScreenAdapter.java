@@ -10,7 +10,7 @@ import com.blogspot.games.play.well.photographers.Image;
 import com.blogspot.games.play.well.photographers.ImageAuthorRegister;
 import com.blogspot.games.play.well.photographers.ImageNormalRegister;
 import com.blogspot.games.play.well.photographers.ac.AcBig;
-import com.blogspot.games.play.well.photographers.dragimg.Frame;
+import com.blogspot.games.play.well.photographers.dragimg.ImageFrame;
 import com.blogspot.games.play.well.photographers.services.FeedAuthorLoader;
 import com.blogspot.games.play.well.photographers.services.FeedNormalLoader;
 
@@ -52,7 +52,7 @@ public class BigScreenAdapter extends FragmentPagerAdapter {
             loading = false;
 
         }
-        return new Frame(i, getSource(mode));
+        return new ImageFrame(i, getSource(mode));
     }
 
     @Override

@@ -11,8 +11,8 @@ public class Image implements Serializable {
     String imageName = "*.*";
     String rate = "0";
     String author = "*.*";
-    String authorPage;
-    String bigImage;
+    String authorPage=null;
+    String bigImage=null;
 
     public String getAuthorPage() {
         return authorPage;
@@ -78,7 +78,7 @@ public class Image implements Serializable {
         this.bigImage = bigImage;
     }
 
-    public String getBigImage() {
+    public String getBigImageUrl() {
         return bigImage;
     }
 

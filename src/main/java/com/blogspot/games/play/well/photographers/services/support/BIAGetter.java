@@ -1,13 +1,10 @@
 package com.blogspot.games.play.well.photographers.services.support;
 
 import android.app.IntentService;
-import android.app.Service;
 import android.content.Intent;
-import android.os.IBinder;
 import com.blogspot.games.play.well.photographers.IFRegister;
 import com.blogspot.games.play.well.photographers.Image;
 import com.blogspot.games.play.well.photographers.ImageAuthorRegister;
-import com.blogspot.games.play.well.photographers.ImageNormalRegister;
 import com.blogspot.games.play.well.photographers.util.ImageUtil;
 import com.blogspot.games.play.well.photographers.util.Log;
 
@@ -50,7 +47,7 @@ public class BIAGetter extends IntentService {
         for (; startFrom < images.size(); startFrom++) {
             Image image = images.get(startFrom);
             String bigImagePage = image.getBigImagePage();
-            if (image.getBigImage() != null) continue;
+            if (image.getBigImageUrl() != null) continue;
             try {
                 String bigImageUrl = ImageUtil.getBigImage(bigImagePage);
                 image.setBigImage(bigImageUrl);
